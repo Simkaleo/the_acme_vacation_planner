@@ -1,10 +1,10 @@
 const pg = require("pg");
+const uuid = require("uuid");
 const client = new pg.Client(
-  process.env.DATABASE_URL || "postgres://localhost/acme_travel_gh_db"; 
-  const uuid = require ('uuid')
+  process.env.DATABASE_URL || "postgres://localhost/acme_travel_gh_db"
 );
 
-const createTables = async() => {
+const createTables = async () => {
   const SQL = `
     DROP TABLE IF EXISTS vacations;
     DROP TABLE IF EXISTS users; 
@@ -28,18 +28,45 @@ const createTables = async() => {
   await client.query(SQL);
 };
 
-const createUser = ({ name }) => {
-  const SQL - `
-  INSERT INTO users(name) 
-  VALUES($1, $2)
-  RETURNING = 
+const createVacation = async (user_id, place_id, travel_date) => {
+  const SQL = `
+  INSERT INTO vacations(id, user_id, place_id, travel_date) 
+  VALUES($1, $2, $3, $4)
+  RETURNING * 
   `;
-  const response = await client.query(SQL, [uuid.v4(), name]); 
-  return response.rows [0];
+  const response = await client.query(SQL, [
+    uuid.v4(),
+    user_id,
+    place_id,
+    travel_date,
+  ]);
+  return response.rows[0];
+};
+
+const fetchUsers = async (name) => {
+  const SQL = `
+  INSERT INTO users(id, name) 
+  VALUES($1, $2)
+  RETURNING * 
+  `;
+  const response = await client.query(SQL, [uuid.v4(), name]);
+  return response.rows[0];
+};
+
+const fetchPlaces = async (name) => {
+  const SQL = `
+    INSERT INTO places(id, name) VALUES($1, $2) RETURNING *
+  `;
+  const response = await client.query(SQL, [uuid.v4(), name]);
+  return response.rows[0];
 };
 
 module.exports = {
   client,
   createTables,
-  createUser
+  createUser,
+  createPlace,
+  createVacation,
+  fetchUsers,
+  fetchPlaces,
 };
